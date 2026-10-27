@@ -27,4 +27,26 @@ public class GlobalExceptionHandler {
 		ApiErrorResponse response = new ApiErrorResponse(HttpStatus.BAD_REQUEST.value(),"Validation failed",errors);
 		return ResponseEntity.badRequest().body(response);
 	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<Map<String,String>> handleIllegalArgumentException(IllegalArgumentException ex){
+		
+		return ResponseEntity.badRequest().body(Map.of("message",ex.getMessage()));
+		
+	}
+	
+	@ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGeneralException(
+            Exception ex) {
+
+        ex.printStackTrace();
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                        "message",
+                        "An unexpected error occurred. Please try again later."
+                ));
+    }
+
 }

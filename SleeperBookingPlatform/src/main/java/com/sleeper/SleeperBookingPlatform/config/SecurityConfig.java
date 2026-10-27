@@ -61,7 +61,9 @@ public class SecurityConfig {
 		        .cors(cors->{})
 				.authorizeHttpRequests(
 						auth -> auth.requestMatchers("/api/users/register","/api/users/login",
-							    "/api/payments/webhook"
+							    "/api/payments/webhook",
+							    "/users/email/otp",
+							    "/users/email/otp/**"
 								).permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

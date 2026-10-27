@@ -6,6 +6,10 @@ const Register = () => {
 
     const [statusType, setStatusType] = useState("")
     const [statusMessage, setStatusMessage] = useState("")
+    const [otp, setOtp] = useState("");
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpVerified, setOtpVerified] = useState(false);
+    const [otpMessage, setOtpMessage] = useState("");
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -50,7 +54,7 @@ const Register = () => {
                 body: JSON.stringify(formData)
             })
 
-            const responseText = response.text()
+            const responseText = await response.text()
             let responseData = {}
 
             try {
@@ -69,12 +73,20 @@ const Register = () => {
             }
 
             if (!response.ok) {
+                console.log(responseData.message);
                 setStatusType("error")
                 setStatusMessage(responseData.message || "Registered failed. Please try again.")
+                setOtpSent(false)
+                setOtpVerified(false)
                 return;
             }
 
+            console.log(responseData.message);
+            
+
             setStatusType("success")
+            setOtpSent(false)
+            setOtpVerified(false)
             setStatusMessage(responseData.message || "Registered successfull!")
 
 
@@ -155,6 +167,83 @@ const Register = () => {
         registerUser();
 
     }
+
+    const sendOtp = async () => {
+        try {
+            setOtpMessage("");
+
+            const otpResponse = await fetch(
+                `http://localhost:8080/users/email/otp?email=${encodeURIComponent(formData.email)}`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+
+            const responseText = await otpResponse.text()
+            let responseData = {};
+
+            try{
+               responseData = responseText ? JSON.parse(responseText):{};
+            }catch(error){
+                responseData = {"message":responseText}
+            }
+
+            if (!otpResponse.ok) {
+                console.log(responseData);
+                
+                setOtpSent(false);
+                setOtpMessage(
+                responseData.message ||
+                responseData.error ||
+                "Failed to send OTP"
+            );
+                return;
+            }
+
+            setOtpSent(true);
+            setOtpVerified(false);
+            setOtpMessage("Otp sent successfully");
+            setOtp("");
+
+        } catch (error) {
+            console.error("Request failed:", error);
+            setOtpMessage("Unable to connect to the server.");
+        }
+    };
+
+    const verifyOtp = async () => {
+        try {
+            setOtpMessage("");
+
+            const otpVerifyResponse = await fetch(
+                `http://localhost:8080/users/email/otp/verify?email=${encodeURIComponent(formData.email)}&otp=${encodeURIComponent(otp)}`,
+                {
+                    method: "POST",
+                    credentials: "include"
+                }
+            );
+
+            console.log(otpVerifyResponse);
+            
+
+            const responseData = await otpVerifyResponse.json();
+
+            if (!otpVerifyResponse.ok || responseData.data?.status !== true) {
+                setOtpVerified(false);
+                setOtpMessage(responseData.message || "Invalid or expired OTP");
+                return;
+            }
+
+            setOtpVerified(true);
+
+        } catch (error) {
+            setOtpVerified(false);
+            setOtpMessage("Unable to verify OTP. Please try again.");
+            console.error(error);
+        }
+    };
 
     return (
         <main className="relative min-h-screen w-full overflow-hidden bg-slate-950 text-white">
@@ -403,6 +492,94 @@ const Register = () => {
                                         </p>
                                     )}
                                 </div>
+                            </div>
+
+                            {/* Email OTP Verification */}
+                            <div className="space-y-3 border-t border-white/10 pt-4">
+
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-100">
+                                        Email Verification
+                                    </h3>
+                                    <p className="mt-1 text-xs text-slate-400">
+                                        Verify your email address to create your account.
+                                    </p>
+                                </div>
+
+                                {/* Send OTP button */}
+                                <button
+                                    type="button"
+                                    onClick={sendOtp}
+                                    disabled={!formData.email}
+                                    className="flex h-11 w-full items-center justify-center
+                   rounded-xl bg-cyan-400 px-4 text-sm font-bold
+                   text-slate-950 transition hover:bg-cyan-300
+                   disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    Send OTP
+                                </button>
+
+                                {/* Show OTP input only after OTP is sent */}
+                                {otpSent && (
+                                    <div className="space-y-3">
+
+                                        <div>
+                                            <label
+                                                htmlFor="otp"
+                                                className="text-sm font-medium text-slate-200"
+                                            >
+                                                Enter 4-digit OTP
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="otp"
+                                                name="otp"
+                                                value={otp}
+                                                onChange={(e) =>
+                                                    setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
+                                                }
+                                                inputMode="numeric"
+                                                autoComplete="one-time-code"
+                                                maxLength={4}
+                                                placeholder="Enter OTP"
+                                                className="mt-2 h-11 w-full rounded-xl
+                               border border-white/15 bg-white/10
+                               px-3.5 text-sm text-white outline-none
+                               placeholder:text-slate-400
+                               focus:border-cyan-300
+                               focus:ring-2 focus:ring-cyan-300/20"
+                                            />
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={verifyOtp}
+                                            disabled={otp.length !== 4}
+                                            className="flex h-11 w-full items-center justify-center
+                           rounded-xl bg-cyan-400 px-4 text-sm font-bold
+                           text-slate-950 transition hover:bg-cyan-300
+                           disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            Verify OTP
+                                        </button>
+
+                                    </div>
+                                )}
+
+                                {/* Verification status */}
+                                {otpVerified && (
+                                    <p className="text-sm font-medium text-green-400" role="status">
+                                        ✓ Email verified successfully!
+                                    </p>
+                                )}
+
+                                {otpMessage && (
+                                    <p className="text-sm text-rose-300" role="alert">
+                                        {otpMessage}
+                                    </p>
+                                )}
+
                             </div>
 
                             {/* Submit button */}

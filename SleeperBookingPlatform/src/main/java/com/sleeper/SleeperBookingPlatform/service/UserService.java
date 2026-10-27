@@ -10,8 +10,11 @@ import com.sleeper.SleeperBookingPlatform.config.service.CustomerUserDetails;
 import com.sleeper.SleeperBookingPlatform.dto.AuthResponse;
 import com.sleeper.SleeperBookingPlatform.dto.RegisterUserRequest;
 import com.sleeper.SleeperBookingPlatform.dto.UserResponse;
+import com.sleeper.SleeperBookingPlatform.enms.EmailVerificationStatus;
+import com.sleeper.SleeperBookingPlatform.entity.EmailOtpVerification;
 import com.sleeper.SleeperBookingPlatform.entity.User;
 import com.sleeper.SleeperBookingPlatform.mapper.UserMapper;
+import com.sleeper.SleeperBookingPlatform.repository.EmailOtpRepository;
 import com.sleeper.SleeperBookingPlatform.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
@@ -25,14 +28,22 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailOtpRepository emailOtpRepository;
 
 	public AuthResponse register(RegisterUserRequest registerUserRequest){
+		
+		EmailOtpVerification existing = emailOtpRepository.findByEmail(registerUserRequest.getEmail()).orElseThrow(()->new IllegalArgumentException("No User verification exists"));
+		
+		if(existing.getStatus().equals(EmailVerificationStatus.PENDING)) {
+			throw new IllegalArgumentException("User email is not verified");
+		}
 
 	    User user = userMapper.toEntity(registerUserRequest);
 
 	    String encodedUserPassword = passwordEncoder.encode(registerUserRequest.getPassword());
 
 	    user.setPassword(encodedUserPassword);
+	    
 
 		User savedUser = userRepository.save(user);
 

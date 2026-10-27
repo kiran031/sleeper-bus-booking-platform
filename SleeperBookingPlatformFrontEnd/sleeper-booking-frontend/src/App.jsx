@@ -9,10 +9,13 @@ import BookingSleeper from './pages/BookingSleeper'
 import BookingContent from './components/booking/BookingContent'
 import ReviewBooking from './components/booking/ReviewBooking'
 import StartPage from './pages/StartPage'
+import Doubt from './Doubt'
 
 
 const App = () => {
   return (
+
+    <>
 
     <BrowserRouter>
       <Routes>
@@ -28,6 +31,8 @@ const App = () => {
         <Route path='/review-booking' element={<ReviewBooking/>} />
       </Routes>
     </BrowserRouter>
+         <Doubt/>
+    </>
 
 
   )
