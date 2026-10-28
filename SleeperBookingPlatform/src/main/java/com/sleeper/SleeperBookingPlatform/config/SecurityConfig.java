@@ -38,15 +38,32 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public JwtEncoder jwtEncoder(@Value("${jwt.secret}") String secret) {
+	public JwtEncoder accessJwtEncoder(@Value("${jwt.secret}") String secret) {
 
 		SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 
 		return NimbusJwtEncoder.withSecretKey(secretKey).build();
 	}
+	
+	@Bean
+	public JwtEncoder refreshJwtEncoder(@Value("${refresh.secret}") String secret) {
+		
+		SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),"HmacSHA256");
+		
+		return NimbusJwtEncoder.withSecretKey(secretKey).build();
+	}
 
 	@Bean
-	public JwtDecoder jwtDecoder(@Value("${jwt.secret}") String secret) {
+	public JwtDecoder accessJwtDecoder(@Value("${jwt.secret}") String secret) {
+
+		SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+
+		return NimbusJwtDecoder.withSecretKey(secretKey).build();
+
+	}
+	
+	@Bean
+	public JwtDecoder refreshJwtDecoder(@Value("${refresh.secret}") String secret) {
 
 		SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 
@@ -63,7 +80,8 @@ public class SecurityConfig {
 						auth -> auth.requestMatchers("/api/users/register","/api/users/login",
 							    "/api/payments/webhook",
 							    "/users/email/otp",
-							    "/users/email/otp/**"
+							    "/users/email/otp/**",
+							    "/api/token/refresh"
 								).permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

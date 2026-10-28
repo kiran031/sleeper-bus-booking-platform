@@ -29,10 +29,16 @@ public class OtpService {
 	
 	public String generateOtp() {
 		
+		System.nanoTime();
+		
 		int otp = 1000+random.nextInt(8999);
+		
+		System.nanoTime();
 		
 		return String.valueOf(otp);
 	}
+	
+	
 	
 	
 	public void sendOtpTOEmail(String email) {
@@ -68,8 +74,16 @@ public class OtpService {
 
 	    record.setOtp(passwordEncoder.encode(otp));
 	    record.setExpireTime(expireTime);
-
+        
+	    long start = System.nanoTime();
 	    emailOtpRepository.save(record);
+	    long end = System.nanoTime();
+	    
+	    System.out.println(
+	    	    "OTP database save took: " +
+	    	    (end - start) / 1_000_000 + " ms"
+	    	);
+
 
 	    SimpleMailMessage message = new SimpleMailMessage();
 	    message.setTo(email);
@@ -79,16 +93,26 @@ public class OtpService {
 	        + "\nThis OTP expires in 2 minutes."
 	    );
 	    
+	    long start1 = System.nanoTime();
 	    
 	    try {
 	    	javaMailSender.send(message);
 	    }catch(MailException e) {
 	    	throw new IllegalStateException("Unable to send OTP email", e);
 	    }
-		
+	    
+	    long end1 = System.nanoTime();
+	    
+	    System.out.println(
+	    	    "Email sending took: " +
+	    	    (end1- start1) / 1_000_000 + " ms"
+	    	);
+
+	    
 	}
 
 	public boolean verifyOtp(String email,String otp) {
+		
 		
 		Instant now = Instant.now();
 		
@@ -107,6 +131,7 @@ public class OtpService {
 		
 		existing.setStatus(EmailVerificationStatus.VERIFIED);
 	    emailOtpRepository.save(existing);
+	    
 
 		
 		return true;

@@ -32,20 +32,34 @@ public class UserController {
 
 	     AuthResponse authResponse =  userService.register(registerUserRequest);
 
-	     ResponseCookie responseCookie = ResponseCookie.from(
+	     ResponseCookie accessCookie = ResponseCookie.from(
 	    		  "accessToken",
 	    		  authResponse.getAccessToken()
 	    		 )
 	    		 .httpOnly(true)
 	    		 .secure(false)
 	    		 .path("/")
-	    		 .maxAge(3600)
+	    		 .maxAge(900)
 	    		 .sameSite("Lax")
 	    		 .build();
+	     
+	     
+	     ResponseCookie refreshCookie = ResponseCookie.from(
+				  "refreshToken",
+				  authResponse.getRefreshToken()
+				)
+				.httpOnly(true)
+				.secure(false)
+				.path("/")
+				.maxAge(7*24*3600)
+				.sameSite("Lax")
+				.build();
+				
 
 		ApiResponse<UserResponse> apiResponse = new ApiResponse<>(HttpStatus.CREATED.value(), "User registered successfully",authResponse.getUserResponse());
 		return ResponseEntity.status(HttpStatus.CREATED)
-				             .header(HttpHeaders.SET_COOKIE,responseCookie.toString())
+				             .header(HttpHeaders.SET_COOKIE,accessCookie.toString())
+				             .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
 				             .body(apiResponse);
 	}
 
@@ -54,7 +68,7 @@ public class UserController {
 
 		AuthResponse authResponse = userService.login(loginRequest.getEmail(),loginRequest.getPassword());
 
-		ResponseCookie cookies = ResponseCookie.from(
+		ResponseCookie accessCookie = ResponseCookie.from(
 				   "accessToken",
 				   authResponse.getAccessToken()
 				)
@@ -64,12 +78,25 @@ public class UserController {
 				.maxAge(3600)
 				.sameSite("Lax")
 				.build();
+		
+		ResponseCookie refreshCookie = ResponseCookie.from(
+				  "refreshToken",
+				  authResponse.getRefreshToken()
+				)
+				.httpOnly(true)
+				.secure(false)
+				.path("/")
+				.maxAge(7*24*3600)
+				.sameSite("Lax")
+				.build();
+				
 
 		ApiResponse<UserResponse> apiResponse = new ApiResponse<>(HttpStatus.OK.value(),"User loggedin successfully",authResponse.getUserResponse());
 
 		return ResponseEntity
 				 .status(HttpStatus.OK)
-				 .header(HttpHeaders.SET_COOKIE, cookies.toString())
+				 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+				 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
 				 .body(apiResponse);
 
 	}

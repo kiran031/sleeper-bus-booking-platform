@@ -3,6 +3,7 @@ package com.sleeper.SleeperBookingPlatform.config.filter;
 import java.io.IOException;
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -23,6 +24,8 @@ import lombok.AllArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenValidator jwtTokenValidator;
+	
+
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,17 +42,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					String accessToken = cookie.getValue();
 
 					try {
-						Jwt jwt = jwtTokenValidator.validateToken(accessToken);
-						JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt,
+						Jwt accessJwt = jwtTokenValidator.validateToken(accessToken);
+						JwtAuthenticationToken authentication = new JwtAuthenticationToken(accessJwt,
 								Collections.emptyList());
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					} catch (Exception e) {
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-						return;
+								response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+								return;
+						}
 					}
 				}
 			}
-		}
 
 //		String header = request.getHeader("Authorization");
 
@@ -68,5 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+
 
 }

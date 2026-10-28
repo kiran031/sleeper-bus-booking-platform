@@ -11,4 +11,5 @@ public class AuthResponse {
 
    private UserResponse UserResponse;
    private String accessToken;
+   private String refreshToken;
 }

@@ -31,7 +31,6 @@ const App = () => {
         <Route path='/review-booking' element={<ReviewBooking/>} />
       </Routes>
     </BrowserRouter>
-         <Doubt/>
     </>
 
 

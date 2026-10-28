@@ -24,7 +24,17 @@ public class EmailOtpController {
 	@PostMapping("/otp")
 	public ResponseEntity<?> sendOtpTOEmail(@RequestParam String email) {
 		
+		long start = System.nanoTime();
+		
 		otpService.sendOtpTOEmail(email);
+		
+		long end = System.nanoTime();
+		
+		System.out.println(
+			    "Entire Operation took: " +
+			    (end - start) / 1_000_000 + " ms"
+			);
+
 		
 		ApiResponse<?> ApiResponse = new ApiResponse<>(HttpStatus.OK.value(),"Otp sent to email successfully",null);
 		
@@ -36,6 +46,7 @@ public class EmailOtpController {
 	
 	@PostMapping("/otp/verify")
 	public ResponseEntity<ApiResponse<Map<String,Boolean>>> verifyOtp(@RequestParam("email") String email,@RequestParam("otp") String otp){
+		
 		boolean isVerified = otpService.verifyOtp(email, otp);
 
 		if (!isVerified) {

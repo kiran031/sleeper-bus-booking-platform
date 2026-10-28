@@ -49,9 +49,10 @@ public class UserService {
 
 		UserResponse userResponse = userMapper.toResponse(savedUser);
 
-		String accessToken = jwtService.generateToken(savedUser.getId());
+		String accessToken = jwtService.generateAccessToken(savedUser.getId());
+		String RefreshToken = jwtService.generateRefershToken(savedUser.getId());
 
-		AuthResponse authResponse = new AuthResponse(userResponse,accessToken);
+		AuthResponse authResponse = new AuthResponse(userResponse,accessToken,RefreshToken);
 
 		return authResponse;
 
@@ -68,13 +69,14 @@ public class UserService {
 
 		Long userId = customerUserDetails.getUserId();
 
-		String accessToken = jwtService.generateToken(userId);
+		String accessToken = jwtService.generateAccessToken(userId);
+		String refreshToken = jwtService.generateRefershToken(userId);
 
 		User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
 
 		UserResponse userResponse = userMapper.toResponse(user);
 
-	    AuthResponse authResponse = new AuthResponse(userResponse,accessToken);
+	    AuthResponse authResponse = new AuthResponse(userResponse,accessToken,refreshToken);
 
 	    return authResponse;
 

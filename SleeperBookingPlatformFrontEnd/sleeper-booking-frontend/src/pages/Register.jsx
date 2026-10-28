@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import heroBackground from "../assets/images/sleeperbus-hero.png";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { CheckCircle } from 'lucide-react';
 
 const Register = () => {
 
@@ -10,6 +11,8 @@ const Register = () => {
     const [otpSent, setOtpSent] = useState(false);
     const [otpVerified, setOtpVerified] = useState(false);
     const [otpMessage, setOtpMessage] = useState("");
+    
+    const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
         firstName: "",
@@ -37,6 +40,7 @@ const Register = () => {
             [e.target.name]: e.target.value
         }))
     }
+
 
 
     const registerUser = async () => {
@@ -82,7 +86,7 @@ const Register = () => {
             }
 
             console.log(responseData.message);
-            
+
 
             setStatusType("success")
             setOtpSent(false)
@@ -99,6 +103,7 @@ const Register = () => {
                 confirmPassword: ""
             })
 
+            navigate("/start-page")
 
         } catch (error) {
 
@@ -184,21 +189,22 @@ const Register = () => {
             const responseText = await otpResponse.text()
             let responseData = {};
 
-            try{
-               responseData = responseText ? JSON.parse(responseText):{};
-            }catch(error){
-                responseData = {"message":responseText}
+            try {
+                responseData = responseText ? JSON.parse(responseText) : {};
+            } catch (error) {
+                responseData = { "message": responseText }
             }
 
             if (!otpResponse.ok) {
-                console.log(responseData);
-                
+
+
+
                 setOtpSent(false);
                 setOtpMessage(
-                responseData.message ||
-                responseData.error ||
-                "Failed to send OTP"
-            );
+                    responseData.message ||
+                    responseData.error ||
+                    "Failed to send OTP"
+                );
                 return;
             }
 
@@ -226,7 +232,7 @@ const Register = () => {
             );
 
             console.log(otpVerifyResponse);
-            
+
 
             const responseData = await otpVerifyResponse.json();
 
@@ -268,27 +274,26 @@ const Register = () => {
                     {/* Left hero section */}
                     <div className="mx-auto flex w-full max-w-xl flex-col items-center text-center lg:mx-0 lg:items-start lg:text-left">
 
-                        <div className="mb-6 inline-flex items-center rounded-full border border-cyan-300/30 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200 backdrop-blur-md">
+                        <div className="mb-6 inline-flex items-center rounded-full border border-cyan-300/30 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200 backdrop-blur-md font-body">
                             Welcome to SleeperBus
                         </div>
 
                         <h1
-                            className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
-                            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                            className="font-heading text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
                         >
                             Your journey
-                            <span className="block text-cyan-300">
+                            <span className="block text-cyan-300 font-body">
                                 starts here.
                             </span>
                         </h1>
 
-                        <p className="mt-5 max-w-lg text-base leading-7 text-slate-300 sm:text-lg">
+                        <p className="mt-5 max-w-lg text-base leading-7 text-slate-300 sm:text-lg font-body">
                             Create your account and discover a more comfortable
                             way to travel. Book your sleeper seat and get ready
                             for your next journey.
                         </p>
 
-                        <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+                        <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start font-body">
                             <span className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-slate-200">
                                 Comfortable journeys
                             </span>
@@ -307,15 +312,15 @@ const Register = () => {
                     <div className="mx-auto w-full max-w-xl rounded-3xl border border-white/15 bg-slate-950/65 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-7 lg:p-8">
 
                         <div className="mb-6">
-                            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-300 font-heading">
                                 Get started
                             </p>
 
-                            <h2 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                            <h2 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl font-heading">
                                 Create Account
                             </h2>
 
-                            <p className="mt-2 text-sm leading-6 text-slate-400">
+                            <p className="mt-2 text-sm leading-6 text-slate-400 font-body">
                                 Enter your details to create your SleeperBus account.
                             </p>
                         </div>
@@ -323,7 +328,7 @@ const Register = () => {
                         <form
                             noValidate
                             onSubmit={onSubmitHandler}
-                            className="space-y-4"
+                            className="space-y-4 font-body"
                         >
 
                             {/* First name and last name */}
@@ -475,16 +480,33 @@ const Register = () => {
                                         Confirm Password
                                     </label>
 
-                                    <input
-                                        type="password"
-                                        id="confirmPassword"
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={onChangeHandler}
-                                        autoComplete="new-password"
-                                        className="mt-2 h-11 w-full rounded-xl border border-white/15 bg-white/10 px-3.5 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/20"
-                                        placeholder="Confirm password"
-                                    />
+                                    <div className="relative mt-2">
+                                        <input
+                                            type="password"
+                                            id="confirmPassword"
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={onChangeHandler}
+                                            autoComplete="new-password"
+                                            className={`h-11 w-full rounded-xl border border-white/15 bg-white/10 px-3.5
+                                                 ${formData.confirmPassword !== "" &&
+                                                    formData.confirmPassword === formData.password ? "pl-10" : ""
+                                                }
+                                                 pr-10 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/20"
+                                            placeholder="Confirm password`}
+                                        />
+
+                                        {formData.confirmPassword !== "" &&
+                                            formData.confirmPassword === formData.password && (
+                                                <CheckCircle
+                                                    color="#16A34A"
+                                                    size={14}
+                                                    strokeWidth={2.5}
+                                                    className="absolute left-3 top-[55%] -translate-y-1/2"
+                                                />
+                                            )}
+                                    </div>
+
 
                                     {errors.confirmPassword && (
                                         <p className="mt-1 text-xs leading-5 text-rose-300 break-words">
@@ -559,7 +581,7 @@ const Register = () => {
                                             className="flex h-11 w-full items-center justify-center
                            rounded-xl bg-cyan-400 px-4 text-sm font-bold
                            text-slate-950 transition hover:bg-cyan-300
-                           disabled:cursor-not-allowed disabled:opacity-50"
+                           disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                                         >
                                             Verify OTP
                                         </button>
@@ -575,7 +597,7 @@ const Register = () => {
                                 )}
 
                                 {otpMessage && (
-                                    <p className="text-sm text-rose-300" role="alert">
+                                    <p className="text-sm text-green-400" role="alert">
                                         {otpMessage}
                                     </p>
                                 )}

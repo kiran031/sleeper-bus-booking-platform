@@ -7,6 +7,7 @@
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_SKIP_DOT_FOLDERS" value="true"/>
 		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="E:\OneLastChance\SleeperBookingPlatformProject"/>
 			<item value="E:\OneLastChance\SleeperBookingPlatformProject\SleeperBookingPlatform"/>
 		</list>
 		<section name="SmartImportWizard.dialogBounds">
